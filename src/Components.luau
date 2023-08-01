@@ -73,7 +73,7 @@ local function Component(name: string)
 	return kind
 end
 
-local function add(instance: Instance, kindName: string)
+local function add(instance: Instance, kindName: string, ...)
 	assert(instance:IsDescendantOf(game), `Can't add components to non-parented instance`)
 	
 	local kind = kinds[kindName]
@@ -87,7 +87,7 @@ local function add(instance: Instance, kindName: string)
 	
 	kindTable[component] = true
 	
-	component:onAdd()
+	component:onAdd(...)
 	
 	return component
 end
