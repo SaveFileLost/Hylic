@@ -21,7 +21,7 @@ end
 
 local function getOrCreateInstanceTable(instance: Instance)
 	local instanceTable = instanceTables[instance]
-	if instanceTable ~= nil then return instanceTable end
+	if instanceTable then return instanceTable end
 	
 	instanceTable = {}
 	instanceTables[instance] = instanceTable
@@ -33,7 +33,7 @@ end
 
 local function getOrCreateKindTable(instanceTable, kindName: string)
 	local kindTable = instanceTable[kindName]
-	if kindTable ~= nil then return kindTable end
+	if kindTable then return kindTable end
 	
 	kindTable = {}
 	instanceTable[kindName] = kindTable
@@ -42,6 +42,8 @@ local function getOrCreateKindTable(instanceTable, kindName: string)
 end
 
 local function Component(name: string)
+	assert(not kinds[name], `Component kind with name \"{name}\" already exists`)
+
 	local kind = {}
 	kind.__index = kind
 	
@@ -53,12 +55,12 @@ local function Component(name: string)
 		
 		kindTable[self] = nil
 		
-		if next(kindTable) == nil then
+		if not next(kindTable) then
 			instanceTable[name] = nil
 		end
 		
 		-- We don't need to keep track of this instance when no components are attached
-		if next(instanceTable) == nil then
+		if not next(instanceTable) then
 			instanceTables[self.instance] = nil
 		end
 	end
@@ -75,7 +77,7 @@ local function add(instance: Instance, kindName: string)
 	assert(instance:IsDescendantOf(game), `Can't add components to non-parented instance`)
 	
 	local kind = kinds[kindName]
-	assert(kind ~= nil, `Component kind \"{kindName}\" doesn't exist`)
+	assert(kind, `Component kind \"{kindName}\" doesn't exist`)
 	
 	local instanceTable = getOrCreateInstanceTable(instance)
 	local kindTable = getOrCreateKindTable(instanceTable, kindName)
@@ -94,12 +96,12 @@ local function get(instance: Instance, kindName: string)
 	local instanceTable = instanceTables[instance]
 	local kindTable = if instanceTable ~= nil then instanceTable[kindName] else nil
 	
-	return if kindTable ~= nil then next(kindTable) else nil
+	return if kindTable then next(kindTable) else nil
 end
 
 local function has(instance: Instance, kindName: string): boolean
 	local instanceTable = instanceTables[instance]
-	return if instanceTable ~= nil then instanceTable[kindName] ~= nil else false
+	return if instanceTable then instanceTable[kindName] ~= nil else false
 end
 
 CollectionService:GetInstanceRemovedSignal(MANAGED_TAG):Connect(clearInstance)
