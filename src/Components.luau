@@ -8,7 +8,9 @@ local instanceTables = {}
 
 local function clearInstance(instance)
 	local instanceTable = instanceTables[instance]
-	assert(instanceTable, "Instance tagged as managed isn't actually managed. How did this happen?")
+
+	-- Explicitly deleting components could have cleaned this instance already
+	if not instanceTable then return end
 	
 	for _, kindTable in instanceTable do
 		for component, _ in kindTable do
@@ -64,6 +66,7 @@ local function Component(name: string)
 		-- We don't need to keep track of this instance when no components are attached
 		if not next(instanceTable.kinds) then
 			instanceTables[self.instance] = nil
+			CollectionService:RemoveTag(self.instance, MANAGED_TAG)
 		end
 	end
 	
