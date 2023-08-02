@@ -9,6 +9,8 @@ return {
 	addComponent = Components.add,
 	getComponent = Components.get,
 	hasComponent = Components.has,
+
+	Event = require(script.Events),
 	
 	start = require(script.Start)
 }
