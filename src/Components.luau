@@ -15,15 +15,16 @@ local function clearInstance(instance)
 			component:delete()
 		end
 	end
-
-	instanceTables[instance] = nil
 end
 
 local function getOrCreateInstanceTable(instance: Instance)
 	local instanceTable = instanceTables[instance]
 	if instanceTable then return instanceTable end
 	
-	instanceTable = {}
+	instanceTable = {
+		kinds = {},
+		all = {},
+	}
 	instanceTables[instance] = instanceTable
 	
 	CollectionService:AddTag(instance, MANAGED_TAG)
@@ -32,11 +33,11 @@ local function getOrCreateInstanceTable(instance: Instance)
 end
 
 local function getOrCreateKindTable(instanceTable, kindName: string)
-	local kindTable = instanceTable[kindName]
+	local kindTable = instanceTable.kinds[kindName]
 	if kindTable then return kindTable end
 	
 	kindTable = {}
-	instanceTable[kindName] = kindTable
+	instanceTable.kinds[kindName] = kindTable
 	
 	return kindTable
 end
@@ -51,16 +52,17 @@ local function Component(name: string)
 		self:onDelete()
 		
 		local instanceTable = instanceTables[self.instance]
-		local kindTable = instanceTable[name]
+		local kindTable = instanceTable.kinds[name]
 		
 		kindTable[self] = nil
+		instanceTable.all[self] = nil
 		
 		if not next(kindTable) then
-			instanceTable[name] = nil
+			instanceTable.kinds[name] = nil
 		end
 		
 		-- We don't need to keep track of this instance when no components are attached
-		if not next(instanceTable) then
+		if not next(instanceTable.kinds) then
 			instanceTables[self.instance] = nil
 		end
 	end
@@ -85,6 +87,7 @@ local function add(instance: Instance, kindName: string, ...)
 	local component = {instance = instance}
 	setmetatable(component, kind)
 	
+	instanceTable.all[component] = true
 	kindTable[component] = true
 	
 	component:onAdd(...)
@@ -94,14 +97,30 @@ end
 
 local function get(instance: Instance, kindName: string)
 	local instanceTable = instanceTables[instance]
-	local kindTable = if instanceTable ~= nil then instanceTable[kindName] else nil
+	local kindTable = if instanceTable then instanceTable.kinds[kindName] else nil
 	
 	return if kindTable then next(kindTable) else nil
 end
 
 local function has(instance: Instance, kindName: string): boolean
 	local instanceTable = instanceTables[instance]
-	return if instanceTable then instanceTable[kindName] ~= nil else false
+	return if instanceTable then instanceTable.kinds[kindName] ~= nil else false
+end
+
+local function all(instance: Instance, predicate: ((any) -> boolean)?): {any}
+	local instanceTable = instanceTables[instance]
+	if not instanceTable then return {} end
+
+	local pred = predicate or function() return true end
+
+	local components = {}
+	for component in instanceTable.all do
+		if pred(component) then
+			table.insert(components, component)
+		end
+	end
+
+	return components
 end
 
 CollectionService:GetInstanceRemovedSignal(MANAGED_TAG):Connect(clearInstance)
@@ -112,4 +131,5 @@ return {
 	add = add,
 	get = get,
 	has = has,
+	all = all,
 }
