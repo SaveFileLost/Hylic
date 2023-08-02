@@ -59,13 +59,9 @@ function eventMeta:delete()
 	table.clear(self)
 end
 
-local function Event()
+return function()
 	local event = {_connections = {}}
 	setmetatable(event, eventMeta)
 
 	return event
 end
-
-return {
-	Event = Event,
-}
