@@ -68,6 +68,9 @@ local function Component(name: string)
 			instanceTables[self.instance] = nil
 			CollectionService:RemoveTag(self.instance, MANAGED_TAG)
 		end
+
+		-- So that if they erroneously try to use it later, it will error
+		table.clear(self)
 	end
 	
 	function kind:onAdd() end
