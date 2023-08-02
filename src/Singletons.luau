@@ -10,13 +10,13 @@ local function getCachedSingleton(name: string)
 	return singleton
 end
 
-local function Singleton(name: string)
+local function Singleton<T>(name: string)
 	local singleton = getCachedSingleton(name)
 	
 	function singleton.init() end
 	function singleton.start() end
 	
-	return singleton
+	return singleton :: T
 end
 
 return {

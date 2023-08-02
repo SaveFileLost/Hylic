@@ -8,7 +8,7 @@ end
 local eventMeta = {}
 eventMeta.__index = eventMeta
 
-function eventMeta:connect(callback)
+function eventMeta:connect<T...>(callback: (T...) -> ())
 	local connection = {
 		isConnected = true,
 		callback = callback,
@@ -20,7 +20,7 @@ function eventMeta:connect(callback)
 	return connection
 end
 
-function eventMeta:once(callback)
+function eventMeta:once<T...>(callback: (T...) -> ())
 	local connection 
 	connection = self:connect(function(...)
 		connection:disconnect()
@@ -30,7 +30,7 @@ function eventMeta:once(callback)
 	return connection
 end
 
-function eventMeta:wait()
+function eventMeta:wait<T...>(): T...
 	local thread = coroutine.running()
 
 	self:once(function(...)
