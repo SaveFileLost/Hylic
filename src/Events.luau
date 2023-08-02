@@ -13,8 +13,9 @@ function eventMeta:connect(callback)
 		isConnected = true,
 		callback = callback,
 	}
+	setmetatable(connection, connectionMeta)
 
-	table.insert(connection, self._connections)
+	table.insert(self._connections, connection)
 
 	return connection
 end
