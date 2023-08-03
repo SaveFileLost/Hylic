@@ -3,7 +3,7 @@ name = "weldify/hylic"
 description = "A Roblox framework to make code communication easier"
 license = "MIT"
 authors = ["Weldify"]
-version = "0.4.3"
+version = "0.5.0"
 
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
