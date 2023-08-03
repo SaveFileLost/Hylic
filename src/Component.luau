@@ -53,7 +53,7 @@ local function kind(name: string)
 	function kind:Destroy()
 		self:onDestroy()
 		
-		local instanceTable = instanceTables[self.instance]
+		local instanceTable = instanceTables[self.Instance]
 		local kindTable = instanceTable.kinds[name]
 		
 		kindTable[self] = nil
@@ -65,8 +65,8 @@ local function kind(name: string)
 		
 		-- We don't need to keep track of this instance when no components are attached
 		if not next(instanceTable.kinds) then
-			instanceTables[self.instance] = nil
-			CollectionService:RemoveTag(self.instance, MANAGED_TAG)
+			instanceTables[self.Instance] = nil
+			CollectionService:RemoveTag(self.Instance, MANAGED_TAG)
 		end
 
 		-- So that if they erroneously try to use it later, it will error
@@ -90,7 +90,7 @@ local function add(instance: Instance, kindName: string, ...)
 	local instanceTable = getOrCreateInstanceTable(instance)
 	local kindTable = getOrCreateKindTable(instanceTable, kindName)
 	
-	local component = {instance = instance}
+	local component = {Instance = instance}
 	setmetatable(component, kind)
 	
 	instanceTable.all[component] = true
