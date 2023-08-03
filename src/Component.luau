@@ -14,7 +14,7 @@ local function clearInstance(instance)
 	
 	for _, kindTable in instanceTable do
 		for component, _ in kindTable do
-			component:delete()
+			component:Delete()
 		end
 	end
 end
@@ -50,7 +50,7 @@ local function kind(name: string)
 	local kind = {}
 	kind.__index = kind
 	
-	function kind:delete()
+	function kind:Delete()
 		self:onDelete()
 		
 		local instanceTable = instanceTables[self.instance]
