@@ -52,7 +52,7 @@ function eventMeta:Run(...)
 	end
 end
 
-function eventMeta:Delete()
+function eventMeta:Destroy()
 	for _, connection in self.connections do
 		connection:Disconnect()
 	end
