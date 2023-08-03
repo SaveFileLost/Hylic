@@ -10,7 +10,7 @@ local function getCachedSingleton(name: string)
 	return singleton
 end
 
-local function Singleton<T>(name: string)
+local function create<T>(name: string)
 	local singleton = getCachedSingleton(name)
 	
 	function singleton.init() end
@@ -20,8 +20,8 @@ local function Singleton<T>(name: string)
 end
 
 return {
-	Singleton = Singleton,
-	get = getCachedSingleton,
+	Create = create,
+	Get = getCachedSingleton,
 	
-	cache = cache,
+	Cache = cache,
 }

@@ -44,7 +44,7 @@ local function getOrCreateKindTable(instanceTable, kindName: string)
 	return kindTable
 end
 
-local function Component(name: string)
+local function kind(name: string)
 	assert(not kinds[name], `Component kind with name \"{name}\" already exists`)
 
 	local kind = {}
@@ -132,10 +132,10 @@ end
 CollectionService:GetInstanceRemovedSignal(MANAGED_TAG):Connect(clearInstance)
 
 return {
-	Component = Component,
+	Kind = kind,
 	
-	add = add,
-	get = get,
-	has = has,
-	all = all,
+	Add = add,
+	Get = get,
+	Has = has,
+	All = all,
 }
