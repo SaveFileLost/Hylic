@@ -44,11 +44,58 @@ local function getOrCreateKindTable(instanceTable, kindName: string)
 	return kindTable
 end
 
-local function kind(name: string)
+type Kind<T, V...> = {
+	Name: string,
+
+	Add: (instance: Instance, V...) -> Component<T, V...>,
+	Get: (instance: Instance) -> Component<T, V...>?,
+	Has: (instance: Instance) -> boolean,
+
+	Destroy: (self: Kind<T, V...>) -> (),
+
+	onAdd: (self: Kind<T, V...>, V...) -> (),
+	onDestroy: (self: Kind<T, V...>) -> (),
+} & T
+
+type Component<T, V...> = Kind<T, V...> & {
+	Instance: Instance
+}
+
+local function kind<T, V...>(name: string)
 	assert(not kinds[name], `Component kind with name \"{name}\" already exists`)
 
-	local kind = {}
+	local kind = {
+		Name = name,
+	}
 	kind.__index = kind
+
+	function kind.Add(instance: Instance, ...: any)
+		assert(instance:IsDescendantOf(game), `Can't add components to non-parented instance`)
+
+		local instanceTable = getOrCreateInstanceTable(instance)
+		local kindTable = getOrCreateKindTable(instanceTable, name)
+	
+		local component = setmetatable({Instance = instance}, kind)
+	
+		instanceTable.all[component] = true
+		kindTable[component] = true
+	
+		component:onAdd(...)
+	
+		return component
+	end
+
+	function kind.Get(instance: Instance)
+		local instanceTable = instanceTables[instance]
+		local kindTable = if instanceTable then instanceTable.kinds[name] else nil
+	
+		return if kindTable then next(kindTable) else nil :: Component<T, V...>
+	end
+
+	function kind.Has(instance: Instance): boolean
+		local instanceTable = instanceTables[instance]
+		return if instanceTable then instanceTable.kinds[name] ~= nil else false
+	end
 	
 	function kind:Destroy()
 		self:onDestroy()
@@ -73,47 +120,33 @@ local function kind(name: string)
 		table.clear(self)
 	end
 	
-	function kind:onAdd() end
+	function kind:onAdd(...: V...) end
 	function kind:onDestroy() end
 	
 	kinds[name] = kind
 	
+	return kind :: Kind<T, V...>
+end
+
+local function getKind(name: string): Kind<any>
+	local kind = kinds[name]
+	assert(kind, `Component kind \"{name}\" doesn't exist`)
 	return kind
 end
 
-local function add(instance: Instance, kindName: string, ...)
-	assert(instance:IsDescendantOf(game), `Can't add components to non-parented instance`)
-	
-	local kind = kinds[kindName]
-	assert(kind, `Component kind \"{kindName}\" doesn't exist`)
-	
-	local instanceTable = getOrCreateInstanceTable(instance)
-	local kindTable = getOrCreateKindTable(instanceTable, kindName)
-	
-	local component = {Instance = instance}
-	setmetatable(component, kind)
-	
-	instanceTable.all[component] = true
-	kindTable[component] = true
-	
-	component:onAdd(...)
-	
-	return component
+local function add(instance: Instance, kindName: string, ...): Component<any, ...any>
+	return getKind(kindName).Add(instance, ...)
 end
 
-local function get(instance: Instance, kindName: string)
-	local instanceTable = instanceTables[instance]
-	local kindTable = if instanceTable then instanceTable.kinds[kindName] else nil
-	
-	return if kindTable then next(kindTable) else nil
+local function get(instance: Instance, kindName: string): Component<any, ...any>?
+	return getKind(kindName).Get(instance)
 end
 
 local function has(instance: Instance, kindName: string): boolean
-	local instanceTable = instanceTables[instance]
-	return if instanceTable then instanceTable.kinds[kindName] ~= nil else false
+	return getKind(kindName).Has(instance)
 end
 
-local function all(instance: Instance, predicate: ((any) -> boolean)?): {any}
+local function all(instance: Instance, predicate: ((any) -> boolean)?): {Component<any>}
 	local instanceTable = instanceTables[instance]
 	if not instanceTable then return {} end
 
