@@ -44,24 +44,24 @@ local function getOrCreateKindTable(instanceTable, kindName: string)
 	return kindTable
 end
 
-type Kind<T, V...> = {
+type Kind<T, K, V...> = {
 	Name: string,
 
-	Add: (instance: Instance, V...) -> Component<T, V...>,
-	Get: (instance: Instance) -> Component<T, V...>?,
-	Has: (instance: Instance) -> boolean,
+	Add: (instance: Instance & K, V...) -> Component<T, K, V...>,
+	Get: (instance: Instance & K) -> Component<T, K, V...>?,
+	Has: (instance: Instance & K) -> boolean,
 
-	Destroy: (self: Kind<T, V...>) -> (),
+	Destroy: (self: Kind<T, K, V...>) -> (),
 
-	onAdd: (self: Kind<T, V...>, V...) -> (),
-	onDestroy: (self: Kind<T, V...>) -> (),
+	onAdd: (self: Kind<T, K, V...>, V...) -> (),
+	onDestroy: (self: Kind<T, K, V...>) -> (),
 } & T
 
-type Component<T, V...> = Kind<T, V...> & {
-	Instance: Instance
+type Component<T, K, V...> = Kind<T, K, V...> & {
+	Instance: Instance & K
 }
 
-local function kind<T, V...>(name: string)
+local function kind<T, K, V...>(name: string)
 	assert(not kinds[name], `Component kind with name \"{name}\" already exists`)
 
 	local kind = {
@@ -69,7 +69,7 @@ local function kind<T, V...>(name: string)
 	}
 	kind.__index = kind
 
-	function kind.Add(instance: Instance, ...: any)
+	function kind.Add(instance, ...)
 		assert(instance:IsDescendantOf(game), `Can't add components to non-parented instance`)
 
 		local instanceTable = getOrCreateInstanceTable(instance)
@@ -89,7 +89,7 @@ local function kind<T, V...>(name: string)
 		local instanceTable = instanceTables[instance]
 		local kindTable = if instanceTable then instanceTable.kinds[name] else nil
 	
-		return if kindTable then next(kindTable) else nil :: Component<T, V...>
+		return if kindTable then next(kindTable) else nil :: Component<T, K, V...>
 	end
 
 	function kind.Has(instance: Instance): boolean
@@ -125,20 +125,20 @@ local function kind<T, V...>(name: string)
 	
 	kinds[name] = kind
 	
-	return kind :: Kind<T, V...>
+	return kind :: Kind<T, K, V...>
 end
 
-local function getKind(name: string): Kind<any>
+local function getKind(name: string): Kind<any, any>
 	local kind = kinds[name]
 	assert(kind, `Component kind \"{name}\" doesn't exist`)
 	return kind
 end
 
-local function add(instance: Instance, kindName: string, ...): Component<any, ...any>
+local function add<T>(instance: Instance & T, kindName: string, ...): Component<any, T>
 	return getKind(kindName).Add(instance, ...)
 end
 
-local function get(instance: Instance, kindName: string): Component<any, ...any>?
+local function get<T>(instance: Instance & T, kindName: string): Component<any, T>?
 	return getKind(kindName).Get(instance)
 end
 
@@ -146,7 +146,7 @@ local function has(instance: Instance, kindName: string): boolean
 	return getKind(kindName).Has(instance)
 end
 
-local function all(instance: Instance, predicate: ((any) -> boolean)?): {Component<any>}
+local function all<T>(instance: Instance & T, predicate: ((any) -> boolean)?): {Component<any, T>}
 	local instanceTable = instanceTables[instance]
 	if not instanceTable then return {} end
 
