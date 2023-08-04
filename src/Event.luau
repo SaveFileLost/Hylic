@@ -8,7 +8,7 @@ end
 local eventMeta = {}
 eventMeta.__index = eventMeta
 
-function eventMeta:Connect<T...>(callback: (T...) -> ())
+function eventMeta:Connect(callback)
 	local connection = {
 		IsConnected = true,
 		Callback = callback,
@@ -20,7 +20,7 @@ function eventMeta:Connect<T...>(callback: (T...) -> ())
 	return connection
 end
 
-function eventMeta:Once<T...>(callback: (T...) -> ())
+function eventMeta:Once(callback)
 	local connection 
 	connection = self:Connect(function(...)
 		connection:Disconnect()
@@ -30,7 +30,7 @@ function eventMeta:Once<T...>(callback: (T...) -> ())
 	return connection
 end
 
-function eventMeta:Wait<T...>(): T...
+function eventMeta:Wait()
 	local thread = coroutine.running()
 
 	self:Once(function(...)
@@ -60,9 +60,25 @@ function eventMeta:Destroy()
 	table.clear(self)
 end
 
-return function()
-	local event = {connections = {}}
-	setmetatable(event, eventMeta)
+type Connection<T...> = {
+	IsConnected: boolean,
+	Callback: (T...) -> (),
 
-	return event
+	Disconnect: (self: Connection<T...>) -> ()
+}
+
+type Event<T...> = {
+	connections: {Connection<T...>},
+
+	Connect: (self: Event<T...>, callback: (T...) -> ()) -> Connection<T...>,
+	Once: (self: Event<T...>, callback: (T...) -> ()) -> Connection<T...>,
+	Wait: (self: Event<T...>) -> T...,
+	Run: (self: Event<T...>, T...) -> (),
+
+	Destroy: (self: Event<T...>) -> ()
+}
+
+return function<T...>()
+	local event = setmetatable({connections = {}}, eventMeta)
+	return event :: Event<T...>
 end
