@@ -7,6 +7,7 @@ return function()
 	hasStarted = true
 	
 	for _, singleton in Singleton.Cache do
+		assert(Singleton.Loaded[singleton], `Singleton \"{singleton}\" was never created`)
 		singleton.init()
 	end
 	

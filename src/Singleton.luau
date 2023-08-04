@@ -1,27 +1,41 @@
-local cache = {}
+local cache: {[string]: Singleton} = {}
+local loaded: {[Singleton]: true} = {}
+
+local function doNothing() end
+
+type Singleton = {
+	Name: string,
+
+	init: () -> (),
+	start: () -> ()
+}
 
 local function getCachedSingleton(name: string)
 	local singleton = cache[name]
-	if singleton ~= nil then return singleton end
+	if singleton then return singleton end
 	
-	singleton = {}
+	singleton = {
+		Name = name,
+		
+		init = doNothing,
+		start = doNothing,
+	}
 	cache[name] = singleton
 	
 	return singleton
 end
 
-local function create<T>(name: string)
+local function new<T>(name: string)
 	local singleton = getCachedSingleton(name)
-	
-	function singleton.init() end
-	function singleton.start() end
-	
-	return singleton :: T
+	loaded[singleton] = true
+
+	return singleton :: Singleton & T
 end
 
 return {
-	Create = create,
-	Get = getCachedSingleton,
+	New = new,
+	GetByName = getCachedSingleton,
 	
 	Cache = cache,
+	Loaded = loaded,
 }
