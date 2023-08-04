@@ -3,8 +3,8 @@ local Component = require(script.Component)
 
 return {
 	Singleton = {
-		Create = Singleton.Create,
-		Get = Singleton.Get,
+		New = Singleton.New,
+		GetByName = Singleton.GetByName,
 	},
 
 	Component = {
