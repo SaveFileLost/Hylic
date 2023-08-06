@@ -51,10 +51,10 @@ type Kind<T, K, V...> = {
 	Get: (instance: Instance & K) -> Component<T, K, V...>?,
 	Has: (instance: Instance & K) -> boolean,
 
-	Destroy: (self: Kind<T, K, V...>) -> (),
+	Destroy: (self: Component<T, K, V...>) -> (),
 
-	onAdd: (self: Kind<T, K, V...>, V...) -> (),
-	onDestroy: (self: Kind<T, K, V...>) -> (),
+	onAdd: (self: Component<T, K, V...>, V...) -> (),
+	onDestroy: (self: Component<T, K, V...>) -> (),
 } & T
 
 type Component<T, K, V...> = Kind<T, K, V...> & {
