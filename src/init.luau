@@ -4,7 +4,7 @@ local Component = require(script.Component)
 return {
 	Singleton = {
 		New = Singleton.New,
-		GetByName = Singleton.GetByName,
+		Get = Singleton.Get,
 	},
 
 	Component = {

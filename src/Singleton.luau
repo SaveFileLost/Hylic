@@ -34,7 +34,7 @@ end
 
 return {
 	New = new,
-	GetByName = getCachedSingleton,
+	Get = getCachedSingleton,
 	
 	Cache = cache,
 	Loaded = loaded,
