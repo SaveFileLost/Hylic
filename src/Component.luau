@@ -82,14 +82,14 @@ local function kind<T, K, V...>(name: string)
 	
 		component:onAdd(...)
 	
-		return component
+		return component :: Component<T, K, V...>
 	end
 
 	function kind.Get(instance: Instance)
 		local instanceTable = instanceTables[instance]
 		local kindTable = if instanceTable then instanceTable.kinds[name] else nil
 	
-		return if kindTable then next(kindTable) else nil :: Component<T, K, V...>
+		return (if kindTable then next(kindTable) else nil) :: Component<T, K, V...>?
 	end
 
 	function kind.Has(instance: Instance): boolean
