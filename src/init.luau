@@ -11,6 +11,7 @@ return {
 		Kind = Component.Kind,
 		Add = Component.Add,
 		Get = Component.Get,
+		Has = Component.Has,
 		All = Component.All,
 	},
 
