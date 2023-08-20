@@ -8,10 +8,9 @@ return {
 	},
 
 	Component = {
-		Kind = Component.Kind,
-		Add = Component.Add,
-		Get = Component.Get,
-		Has = Component.Has,
+		NewKind = Component.NewKind,
+		GetKind = Component.GetKind,
+
 		All = Component.All,
 	},
 
