@@ -61,7 +61,7 @@ type Component<T, K, V...> = Kind<T, K, V...> & {
 	Instance: Instance & K
 }
 
-local function kind<T, K, V...>(name: string)
+local function newKind<T, K, V...>(name: string)
 	assert(not kinds[name], `Component kind with name \"{name}\" already exists`)
 
 	local kind = {
@@ -128,22 +128,8 @@ local function kind<T, K, V...>(name: string)
 	return kind :: Kind<T, K, V...>
 end
 
-local function getKind(name: string): Kind<any, any>
-	local kind = kinds[name]
-	assert(kind, `Component kind \"{name}\" doesn't exist`)
-	return kind
-end
-
-local function add<T>(instance: Instance & T, kindName: string, ...): Component<any, T>
-	return getKind(kindName).Add(instance, ...)
-end
-
-local function get<T>(instance: Instance & T, kindName: string): Component<any, T>?
-	return getKind(kindName).Get(instance)
-end
-
-local function has(instance: Instance, kindName: string): boolean
-	return getKind(kindName).Has(instance)
+local function getKind(name: string): Kind<any, any>?
+	return kinds[name]
 end
 
 local function all<T>(instance: Instance & T, predicate: ((any) -> boolean)?): {Component<any, T>}
@@ -165,10 +151,8 @@ end
 CollectionService:GetInstanceRemovedSignal(MANAGED_TAG):Connect(clearInstance)
 
 return {
-	Kind = kind,
-	
-	Add = add,
-	Get = get,
-	Has = has,
+	NewKind = newKind,
+	GetKind = getKind,
+
 	All = all,
 }
