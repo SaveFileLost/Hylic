@@ -128,8 +128,15 @@ local function newKind<T, K, V...>(name: string)
 	return kind :: Kind<T, K, V...>
 end
 
-local function getKind(name: string): Kind<any, any>?
+local function tryGetKind(name: string): Kind<any, any>?
 	return kinds[name]
+end
+
+local function getKind(name: string): Kind<any, any>
+	local kind = kinds[name]
+	assert(kind, `Kind "{name}" doesn't exist!`)
+
+	return kind
 end
 
 local function all<T>(instance: Instance & T, predicate: ((any) -> boolean)?): {Component<any, T>}
@@ -153,6 +160,7 @@ CollectionService:GetInstanceRemovedSignal(MANAGED_TAG):Connect(clearInstance)
 return {
 	NewKind = newKind,
 	GetKind = getKind,
+	TryGetKind = tryGetKind,
 
 	All = all,
 }
