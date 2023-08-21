@@ -10,6 +10,8 @@ function invalidMeta:IsValid()
 	return false
 end
 
+function invalidMeta:Destroy() end
+
 local kinds = {}
 local destroyingSet = {}
 local instanceTables = {}
