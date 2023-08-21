@@ -11,6 +11,7 @@ function invalidMeta:IsValid()
 end
 
 local kinds = {}
+local destroyingSet = {}
 local instanceTables = {}
 
 local function clearInstance(instance)
@@ -105,6 +106,11 @@ local function newKind<T, K, V...>(name: string)
 	end
 	
 	function kind:Destroy()
+		if not self:IsValid() then return end
+
+		-- IsValid becomes false when we are in the set
+		destroyingSet[self] = true
+
 		self:onDestroy()
 		
 		local instanceTable = instanceTables[self.Instance]
@@ -126,12 +132,14 @@ local function newKind<T, K, V...>(name: string)
 		-- So that if they erroneously try to use it later, it will error
 		table.clear(self)
 		setmetatable(self, invalidMeta)
+
+		destroyingSet[self] = false
 	end
 
 	-- When a component is destroyed, its metatable is set to an "invalid" metatable
 	-- and this function will return false
 	function kind:IsValid()
-		return true
+		return destroyingSet[self] == nil
 	end
 	
 	function kind:onAdd(...: V...) end
