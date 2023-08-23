@@ -24,6 +24,7 @@ local function clearInstance(instance)
 	
 	for _, kindTable in instanceTable do
 		for component, _ in kindTable do
+			if component.unmanaged then continue end
 			component:Destroy()
 		end
 	end
@@ -68,7 +69,8 @@ type Kind<T, K, V...> = {
 } & T
 
 type Component<T, K, V...> = Kind<T, K, V...> & {
-	Instance: Instance & K
+	Instance: Instance & K,
+	unmanaged: boolean
 }
 
 local function newKind<T, K, V...>(name: string)
@@ -85,7 +87,7 @@ local function newKind<T, K, V...>(name: string)
 		local instanceTable = getOrCreateInstanceTable(instance)
 		local kindTable = getOrCreateKindTable(instanceTable, name)
 	
-		local component = setmetatable({Instance = instance}, kind)
+		local component = setmetatable({Instance = instance, unmanaged = false}, kind)
 	
 		instanceTable.all[component] = true
 		kindTable[component] = true
