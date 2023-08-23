@@ -22,11 +22,9 @@ local function clearInstance(instance)
 	-- Explicitly deleting components could have cleaned this instance already
 	if not instanceTable then return end
 	
-	for _, kindTable in instanceTable do
-		for component, _ in kindTable do
-			if component.unmanaged then continue end
-			component:Destroy()
-		end
+	for component in instanceTable.all do
+		if component.unmanaged then continue end
+		component:Destroy()
 	end
 end
 
