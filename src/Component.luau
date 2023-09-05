@@ -76,7 +76,11 @@ local function newKind<T, K, V...>(name: string)
 		local instanceTable = getOrCreateInstanceTable(instance)
 		local kindTable = getOrCreateKindTable(instanceTable, name)
 	
-		local component = setmetatable({Instance = instance, unmanaged = false}, kind)
+		local component = setmetatable({
+			Instance = instance, 
+			IsValid = true, 
+			unmanaged = false
+		}, kind)
 	
 		instanceTable.all[component] = true
 		kindTable[component] = true
