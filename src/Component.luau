@@ -3,17 +3,7 @@ local CollectionService = game:GetService("CollectionService")
 
 local MANAGED_TAG = `_HC_MANAGED_{if RunService:IsServer() then "SV" else "CL"}`
 
-local invalidMeta = {}
-invalidMeta.__index = invalidMeta
-
-function invalidMeta:IsValid()
-	return false
-end
-
-function invalidMeta:Destroy() end
-
 local kinds = {}
-local destroyingSet = {}
 local instanceTables = {}
 
 local function clearInstance(instance)
@@ -68,7 +58,8 @@ type Kind<T, K, V...> = {
 
 type Component<T, K, V...> = Kind<T, K, V...> & {
 	Instance: Instance & K,
-	unmanaged: boolean
+	IsValid: boolean?,
+	unmanaged: boolean,
 }
 
 local function newKind<T, K, V...>(name: string)
@@ -108,10 +99,8 @@ local function newKind<T, K, V...>(name: string)
 	end
 	
 	function kind:Destroy()
-		if not self:IsValid() then return end
-
-		-- IsValid becomes false when we are in the set
-		destroyingSet[self] = true
+		if not self.IsValid then return end
+		self.IsValid = false
 
 		self:onDestroy()
 		
@@ -133,15 +122,6 @@ local function newKind<T, K, V...>(name: string)
 
 		-- So that if they erroneously try to use it later, it will error
 		table.clear(self)
-		setmetatable(self, invalidMeta)
-
-		destroyingSet[self] = false
-	end
-
-	-- When a component is destroyed, its metatable is set to an "invalid" metatable
-	-- and this function will return false
-	function kind:IsValid()
-		return destroyingSet[self] == nil
 	end
 	
 	function kind:onAdd(...: V...) end
