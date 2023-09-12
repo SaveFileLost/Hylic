@@ -3,13 +3,6 @@ local loaded: {[Singleton]: true} = {}
 
 local function doNothing() end
 
-type Singleton = {
-	Name: string,
-
-	init: () -> (),
-	start: () -> ()
-}
-
 local function getCachedSingleton(name: string)
 	local singleton = cache[name]
 	if singleton then return singleton end

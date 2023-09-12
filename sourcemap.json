@@ -1,0 +1,85 @@
+{
+	"name": "hylic",
+	"className": "DataModel",
+	"filePaths": [
+		"dev.project.json"
+	],
+	"children": [
+		{
+			"name": "ReplicatedStorage",
+			"className": "ReplicatedStorage",
+			"children": [
+				{
+					"name": "Packages",
+					"className": "Folder",
+					"children": [
+						{
+							"name": "hylic",
+							"className": "ModuleScript",
+							"children": [
+								{
+									"name": "Component",
+									"className": "ModuleScript",
+									"children": [],
+									"filePaths": [
+										"src/Component.luau"
+									]
+								},
+								{
+									"name": "Event",
+									"className": "ModuleScript",
+									"children": [],
+									"filePaths": [
+										"src/Event.luau"
+									]
+								},
+								{
+									"name": "Singleton",
+									"className": "ModuleScript",
+									"children": [],
+									"filePaths": [
+										"src/Singleton.luau"
+									]
+								},
+								{
+									"name": "Start",
+									"className": "ModuleScript",
+									"children": [],
+									"filePaths": [
+										"src/Start.luau"
+									]
+								},
+								{
+									"name": "Types",
+									"className": "ModuleScript",
+									"children": [],
+									"filePaths": [
+										"src/Types.luau"
+									]
+								},
+								{
+									"name": "doNothing",
+									"className": "ModuleScript",
+									"children": [],
+									"filePaths": [
+										"src/doNothing.luau"
+									]
+								}
+							],
+							"filePaths": [
+								"src/init.luau",
+								"dev.project.json"
+							]
+						}
+					],
+					"filePaths": [
+						"dev.project.json"
+					]
+				}
+			],
+			"filePaths": [
+				"dev.project.json"
+			]
+		}
+	]
+}
