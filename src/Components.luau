@@ -74,7 +74,7 @@ end
 
 local function Kind<TInstance, TComponent, TArgs...>(
 	name: string,
-	initializer: (TComponent, TArgs...) -> TComponent
+	initializer: (TComponent, TArgs...) -> ()
 ): Types.Kind<TInstance, TComponent, TArgs...>
 	local this = getKind(name)
 	assert(not definedKindSet[this], `Kind {name} is already defined`)
