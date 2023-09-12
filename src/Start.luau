@@ -1,5 +1,4 @@
 local Components = require(script.Parent.Components)
-local Singletons = require(script.Parent.Singletons)
 
 local hasStarted = false
 local function start()
@@ -7,7 +6,6 @@ local function start()
 	hasStarted = true
 
 	Components.start()
-	Singletons.start()
 end
 
 return start

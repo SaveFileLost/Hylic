@@ -14,11 +14,4 @@ export type Component<T> = {
 	onDestroy: () -> (),
 }
 
-export type Singleton = {
-	name: string,
-
-	init: () -> (),
-	start: () -> (),
-}
-
 return nil
