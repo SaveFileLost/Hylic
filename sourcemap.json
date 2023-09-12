@@ -18,35 +18,19 @@
 							"className": "ModuleScript",
 							"children": [
 								{
-									"name": "Component",
+									"name": "doNothing",
 									"className": "ModuleScript",
 									"children": [],
 									"filePaths": [
-										"src/Component.luau"
+										"src/doNothing.luau"
 									]
 								},
 								{
-									"name": "Event",
+									"name": "unimplemented",
 									"className": "ModuleScript",
 									"children": [],
 									"filePaths": [
-										"src/Event.luau"
-									]
-								},
-								{
-									"name": "Singleton",
-									"className": "ModuleScript",
-									"children": [],
-									"filePaths": [
-										"src/Singleton.luau"
-									]
-								},
-								{
-									"name": "Start",
-									"className": "ModuleScript",
-									"children": [],
-									"filePaths": [
-										"src/Start.luau"
+										"src/unimplemented.luau"
 									]
 								},
 								{
@@ -58,11 +42,27 @@
 									]
 								},
 								{
-									"name": "doNothing",
+									"name": "Components",
 									"className": "ModuleScript",
 									"children": [],
 									"filePaths": [
-										"src/doNothing.luau"
+										"src/Components.luau"
+									]
+								},
+								{
+									"name": "Singletons",
+									"className": "ModuleScript",
+									"children": [],
+									"filePaths": [
+										"src/Singletons.luau"
+									]
+								},
+								{
+									"name": "start",
+									"className": "ModuleScript",
+									"children": [],
+									"filePaths": [
+										"src/start.luau"
 									]
 								}
 							],
