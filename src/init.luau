@@ -1,19 +1,16 @@
-local Singleton = require(script.Singleton)
-local Component = require(script.Component)
+local Components = require(script.Components)
+local Singletons = require(script.Singletons)
+local Types = require(script.Types)
+
+export type Kind<TInstance, TComponent, TArgs...> = Types.Kind<TInstance, TComponent, TArgs...>
+export type Component<T> = Types.Component<T>;
+export type Singleton = Types.Singleton;
 
 return {
-	Singleton = {
-		New = Singleton.New,
-		Get = Singleton.Get,
-	},
+	Singleton = Singletons.Singleton,
+	getSingleton = Singletons.getSingleton,
 
-	Component = {
-		NewKind = Component.NewKind,
-		GetKind = Component.GetKind,
-
-		All = Component.All,
-	},
-
-	Event = require(script.Event),
-	Start = require(script.Start)
+	Kind = Components.Kind,
+	getKind = Components.getKind,
+	getAllComponents = Components.getAllComponents,
 }

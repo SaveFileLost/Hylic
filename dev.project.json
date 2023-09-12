@@ -1,0 +1,16 @@
+{
+	"name": "hylic",
+	"base": "",
+	"build": "build.rbxl",
+	"port": 8008,
+
+	"tree": {
+		"ReplicatedStorage": {
+			"Packages": {
+				"hylic": {
+					"$path": "default.project.json"
+				}
+			}
+		}
+	}
+}

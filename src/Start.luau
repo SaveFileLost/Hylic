@@ -1,17 +1,13 @@
-local Singleton = require(script.Parent.Singleton)
+local Components = require(script.Parent.Components)
+local Singletons = require(script.Parent.Singletons)
 
 local hasStarted = false
-
-return function()
-	assert(not hasStarted, `Hylic has already started`)
+local function start()
+	assert(not hasStarted)
 	hasStarted = true
-	
-	for _, singleton in Singleton.Cache do
-		assert(Singleton.Loaded[singleton], `Singleton \"{singleton}\" was never created`)
-		singleton.init()
-	end
-	
-	for _, singleton in Singleton.Cache do
-		singleton.start()
-	end
+
+	Components.start()
+	Singletons.start()
 end
+
+return start
