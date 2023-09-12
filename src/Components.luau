@@ -7,13 +7,15 @@ local unimplemented = require(script.Parent.unimplemented)
 local MANAGED_TAG = `_HC_MANAGED_{if RunService:IsServer() then "SV" else "CL"}`
 
 type ComponentSet = { [Types.Component<Instance>]: true }
+type AnyKind = Types.Kind<Instance, Types.Component<Instance>, any>
 
 type InstanceTable = {
 	kinds: { [string]: ComponentSet },
 	all: ComponentSet,
 }
 
-local kindCache: { [string]: Types.Kind<Instance, Types.Component<Instance>, any> } = {}
+local kindCache: { [string]: AnyKind } = {}
+local definedKindSet: {[AnyKind]: true} = {}
 local instanceTables: { [Instance]: InstanceTable } = {}
 
 local function clearInstance(instance)
@@ -75,6 +77,8 @@ local function Kind<TInstance, TComponent, TArgs...>(
 	initializer: (TComponent, TArgs...) -> TComponent
 ): Types.Kind<TInstance, TComponent, TArgs...>
 	local this = getKind(name)
+	assert(not definedKindSet[this], `Kind {name} is already defined`)
+	definedKindSet[this] = true
 
 	function this.add(instance, ...)
 		assert(instance:IsDescendantOf(game), `Can't add components to non-parented instance`)
