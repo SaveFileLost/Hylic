@@ -68,7 +68,7 @@ function signalMeta:Fire(...)
 end
 
 function signalMeta:Destroy()
-	for _, connection in self.connectionSet do
+	for connection in self.connectionSet do
 		connection:Disconnect()
 	end
 
