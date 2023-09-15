@@ -5,15 +5,15 @@ type Connection<T...> = {
 	Disconnect: (self: Connection<T...>) -> ()
 }
 
-type Event<T...> = {
+type Signal<T...> = {
 	connectionSet: {Connection<T...>},
 
-	Connect: (self: Event<T...>, callback: (T...) -> ()) -> Connection<T...>,
-	Once: (self: Event<T...>, callback: (T...) -> ()) -> Connection<T...>,
-	Wait: (self: Event<T...>) -> T...,
-	Run: (self: Event<T...>, T...) -> (),
+	Connect: (self: Signal<T...>, callback: (T...) -> ()) -> Connection<T...>,
+	Once: (self: Signal<T...>, callback: (T...) -> ()) -> Connection<T...>,
+	Wait: (self: Signal<T...>) -> T...,
+	Fire: (self: Signal<T...>, T...) -> (),
 
-	Destroy: (self: Event<T...>) -> ()
+	Destroy: (self: Signal<T...>) -> ()
 }
 
 local connectionMeta = {}
@@ -24,10 +24,10 @@ function connectionMeta:Disconnect()
 	self.IsConnected = false
 end
 
-local eventMeta = {}
-eventMeta.__index = eventMeta
+local signalMeta = {}
+signalMeta.__index = signalMeta
 
-function eventMeta:Connect(callback)
+function signalMeta:Connect(callback)
 	local connection = {
 		connectionSet = self.connectionSet,
 
@@ -41,7 +41,7 @@ function eventMeta:Connect(callback)
 	return connection
 end
 
-function eventMeta:Once(callback)
+function signalMeta:Once(callback)
 	local connection 
 	connection = self:Connect(function(...)
 		connection:Disconnect()
@@ -51,7 +51,7 @@ function eventMeta:Once(callback)
 	return connection
 end
 
-function eventMeta:Wait()
+function signalMeta:Wait()
 	local thread = coroutine.running()
 
 	self:Once(function(...)
@@ -61,13 +61,13 @@ function eventMeta:Wait()
 	return coroutine.yield()
 end
 
-function eventMeta:Run(...)
+function signalMeta:Fire(...)
 	for connection in self.connectionSet do
 		connection.Callback(...)
 	end
 end
 
-function eventMeta:Destroy()
+function signalMeta:Destroy()
 	for _, connection in self.connectionSet do
 		connection:Disconnect()
 	end
@@ -75,12 +75,12 @@ function eventMeta:Destroy()
 	table.clear(self)
 end
 
-local function Event<T...>()
-	local event = setmetatable({
+local function Signal<T...>()
+	local signal = setmetatable({
 		connectionSet = {}
-	}, eventMeta)
+	}, signalMeta)
 	
-	return event :: Event<T...>
+	return signal :: Signal<T...>
 end
 
-return Event
+return Signal
