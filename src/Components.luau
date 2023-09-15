@@ -3,7 +3,26 @@ local CollectionService = game:GetService("CollectionService")
 
 local MANAGED_TAG = `_HC_MANAGED_{if RunService:IsServer() then "SV" else "CL"}`
 
-local kinds = {}
+type Kind<T, K, V...> = {
+	Name: string,
+
+	Add: (instance: Instance & K, V...) -> Component<T, K, V...>,
+	Get: (instance: Instance & K) -> Component<T, K, V...>?,
+	Has: (instance: Instance & K) -> boolean,
+
+	Destroy: (self: Component<T, K, V...>) -> (),
+
+	onAdd: (self: Component<T, K, V...>, V...) -> (),
+	onDestroy: (self: Component<T, K, V...>) -> (),
+} & T
+
+type Component<T, K, V...> = Kind<T, K, V...> & {
+	Instance: Instance & K,
+	IsDestroyed: boolean,
+	IsManaged: boolean,
+}
+
+local kindCache: {[string]: Component<any, Instance>} = {}
 local instanceTables = {}
 
 local function clearInstance(instance)
@@ -13,7 +32,7 @@ local function clearInstance(instance)
 	if not instanceTable then return end
 	
 	for component in instanceTable.all do
-		if component.unmanaged then continue end
+		if not component.IsManaged then continue end
 		component:Destroy()
 	end
 end
@@ -43,32 +62,30 @@ local function getOrCreateKindTable(instanceTable, kindName: string)
 	return kindTable
 end
 
-type Kind<T, K, V...> = {
-	Name: string,
+local function getKind(name: string): Kind<any, Instance>
+	local kind = kindCache[name]
+	if kind then return kind end
 
-	Add: (instance: Instance & K, V...) -> Component<T, K, V...>,
-	Get: (instance: Instance & K) -> Component<T, K, V...>?,
-	Has: (instance: Instance & K) -> boolean,
+	local function errNotCreated()
+		error(`Kind {name} is cached but not defined.`)
+	end
 
-	Destroy: (self: Component<T, K, V...>) -> (),
+	kind = {
+		Name = name,
 
-	onAdd: (self: Component<T, K, V...>, V...) -> (),
-	onDestroy: (self: Component<T, K, V...>) -> (),
-} & T
+		Add = errNotCreated,
+		Get = errNotCreated,
+		Has = errNotCreated,
+	}
 
-type Component<T, K, V...> = Kind<T, K, V...> & {
-	Instance: Instance & K,
-	IsValid: boolean?,
-	unmanaged: boolean,
-}
+	kindCache[name] = kind
+	return kind
+end
 
 local function newKind<T, K, V...>(name: string)
-	assert(not kinds[name], `Component kind with name \"{name}\" already exists`)
+	assert(not kindCache[name], `Component kind with name \"{name}\" already exists`)
 
-	local kind = {
-		Name = name,
-	}
-	kind.__index = kind
+	local kind = getKind(name)
 
 	function kind.Add(instance, ...)
 		assert(instance:IsDescendantOf(game), `Can't add components to non-parented instance`)
@@ -78,8 +95,8 @@ local function newKind<T, K, V...>(name: string)
 	
 		local component = setmetatable({
 			Instance = instance, 
-			IsValid = true, 
-			unmanaged = false
+			IsDestroyed = false, 
+			IsManaged = true
 		}, kind)
 	
 		instanceTable.all[component] = true
@@ -103,8 +120,8 @@ local function newKind<T, K, V...>(name: string)
 	end
 	
 	function kind:Destroy()
-		if not self.IsValid then return end
-		self.IsValid = false
+		if self.IsDestroyed then return end
+		self.IsDestroyed = false
 
 		self:onDestroy()
 		
@@ -121,54 +138,42 @@ local function newKind<T, K, V...>(name: string)
 		-- We don't need to keep track of this instance when no components are attached
 		if not next(instanceTable.kinds) then
 			instanceTables[self.Instance] = nil
-			CollectionService:RemoveTag(self.Instance, MANAGED_TAG)
+			self.Instance:RemoveTag(MANAGED_TAG)
 		end
 
 		-- So that if they erroneously try to use it later, it will error
 		table.clear(self)
+		self.IsDestroyed = true
 	end
 	
 	function kind:onAdd(...: V...) end
 	function kind:onDestroy() end
-	
-	kinds[name] = kind
-	
+
 	return kind :: Kind<T, K, V...>
 end
 
-local function tryGetKind(name: string): Kind<any, any>?
-	return kinds[name]
-end
-
-local function getKind(name: string): Kind<any, any>
-	local kind = kinds[name]
-	assert(kind, `Kind "{name}" doesn't exist!`)
-
-	return kind
-end
-
-local function all<T>(instance: Instance & T, predicate: ((any) -> boolean)?): {Component<any, T>}
+local function getAllComponents<T>(instance: Instance & T): {Component<any, T>}
 	local instanceTable = instanceTables[instance]
 	if not instanceTable then return {} end
 
-	local pred = predicate or function() return true end
-
 	local components = {}
 	for component in instanceTable.all do
-		if pred(component) then
-			table.insert(components, component)
-		end
+		table.insert(components, component)
 	end
 
 	return components
 end
 
-CollectionService:GetInstanceRemovedSignal(MANAGED_TAG):Connect(clearInstance)
+local function start()
+	CollectionService:GetInstanceRemovedSignal(MANAGED_TAG):Connect(clearInstance)
+end
+
 
 return {
 	NewKind = newKind,
 	GetKind = getKind,
-	TryGetKind = tryGetKind,
 
-	All = all,
+	GetAllComponents = getAllComponents,
+
+	Start = start,
 }

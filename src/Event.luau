@@ -1,7 +1,26 @@
+type Connection<T...> = {
+	IsConnected: boolean,
+	Callback: (T...) -> (),
+
+	Disconnect: (self: Connection<T...>) -> ()
+}
+
+type Event<T...> = {
+	connections: {Connection<T...>},
+
+	Connect: (self: Event<T...>, callback: (T...) -> ()) -> Connection<T...>,
+	Once: (self: Event<T...>, callback: (T...) -> ()) -> Connection<T...>,
+	Wait: (self: Event<T...>) -> T...,
+	Run: (self: Event<T...>, T...) -> (),
+
+	Destroy: (self: Event<T...>) -> ()
+}
+
 local connectionMeta = {}
 connectionMeta.__index = connectionMeta
 
 function connectionMeta:Disconnect()
+	self.connectionSet[self] = nil
 	self.IsConnected = false
 end
 
@@ -10,12 +29,14 @@ eventMeta.__index = eventMeta
 
 function eventMeta:Connect(callback)
 	local connection = {
+		connectionSet = self.connections,
+
 		IsConnected = true,
 		Callback = callback,
 	}
 	setmetatable(connection, connectionMeta)
 
-	table.insert(self.connections, connection)
+	self.connectionSet[connection] = true
 
 	return connection
 end
@@ -41,14 +62,8 @@ function eventMeta:Wait()
 end
 
 function eventMeta:Run(...)
-	for i = #self.connections, 1, -1 do
-		local connection = self.connections[i]
-
-		if connection.IsConnected then
-			connection.Callback(...)
-		else
-			table.remove(self.connections, i)
-		end
+	for connection in self.connections do
+		connection.Callback(...)
 	end
 end
 
@@ -60,25 +75,12 @@ function eventMeta:Destroy()
 	table.clear(self)
 end
 
-type Connection<T...> = {
-	IsConnected: boolean,
-	Callback: (T...) -> (),
-
-	Disconnect: (self: Connection<T...>) -> ()
-}
-
-type Event<T...> = {
-	connections: {Connection<T...>},
-
-	Connect: (self: Event<T...>, callback: (T...) -> ()) -> Connection<T...>,
-	Once: (self: Event<T...>, callback: (T...) -> ()) -> Connection<T...>,
-	Wait: (self: Event<T...>) -> T...,
-	Run: (self: Event<T...>, T...) -> (),
-
-	Destroy: (self: Event<T...>) -> ()
-}
-
-return function<T...>()
-	local event = setmetatable({connections = {}}, eventMeta)
+local function Event<T...>()
+	local event = setmetatable({
+		connectionSet = {}
+	}, eventMeta)
+	
 	return event :: Event<T...>
 end
+
+return Event
