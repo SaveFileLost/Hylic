@@ -2,13 +2,13 @@ local Singletons = require(script.Singletons)
 local Components = require(script.Components)
 
 return {
-	NewSingleton = Singletons.New,
+	Singleton = Singletons.New,
 	GetSingleton = Singletons.Get,
 
-	NewKind = Components.NewKind,
+	Kind = Components.NewKind,
 	GetKind = Components.GetKind,
 	GetAllComponents = Components.GetAllComponents,
 
-	Event = require(script.Event),
+	Signal = require(script.Signal),
 	Start = require(script.start)
 }
