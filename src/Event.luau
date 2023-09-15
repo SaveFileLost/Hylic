@@ -6,7 +6,7 @@ type Connection<T...> = {
 }
 
 type Event<T...> = {
-	connections: {Connection<T...>},
+	connectionSet: {Connection<T...>},
 
 	Connect: (self: Event<T...>, callback: (T...) -> ()) -> Connection<T...>,
 	Once: (self: Event<T...>, callback: (T...) -> ()) -> Connection<T...>,
@@ -29,7 +29,7 @@ eventMeta.__index = eventMeta
 
 function eventMeta:Connect(callback)
 	local connection = {
-		connectionSet = self.connections,
+		connectionSet = self.connectionSet,
 
 		IsConnected = true,
 		Callback = callback,
@@ -62,13 +62,13 @@ function eventMeta:Wait()
 end
 
 function eventMeta:Run(...)
-	for connection in self.connections do
+	for connection in self.connectionSet do
 		connection.Callback(...)
 	end
 end
 
 function eventMeta:Destroy()
-	for _, connection in self.connections do
+	for _, connection in self.connectionSet do
 		connection:Disconnect()
 	end
 
