@@ -86,6 +86,7 @@ local function newKind<T, K, V...>(name: string)
 	assert(not kindCache[name], `Component kind with name \"{name}\" already exists`)
 
 	local kind = getKind(name)
+	kind.__index = kind
 
 	function kind.Add(instance, ...)
 		assert(instance:IsDescendantOf(game), `Can't add components to non-parented instance`)

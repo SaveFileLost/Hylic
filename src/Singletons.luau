@@ -8,8 +8,6 @@ type Singleton = {
 local cache: {[string]: Singleton} = {}
 local loaded: {[Singleton]: true} = {}
 
-local function doNothing() end
-
 local function get(name: string)
 	local singleton = cache[name]
 	if singleton then return singleton end
@@ -17,8 +15,8 @@ local function get(name: string)
 	singleton = {
 		Name = name,
 		
-		init = doNothing,
-		start = doNothing,
+		init = function() end,
+		start = function() end,
 	}
 	cache[name] = singleton
 	
