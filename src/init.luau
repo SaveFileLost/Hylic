@@ -1,14 +1,14 @@
+local Singletons = require(script.Singletons)
 local Components = require(script.Components)
-local Types = require(script.Types)
-local start = require(script.start)
-
-export type Kind<TInstance, TComponent, TArgs...> = Types.Kind<TInstance, TComponent, TArgs...>
-export type Component<T> = Types.Component<T>;
 
 return {
-	Kind = Components.Kind,
-	getKind = Components.getKind,
-	getAllComponents = Components.getAllComponents,
+	NewSingleton = Singletons.New,
+	GetSingleton = Singletons.Get,
 
-	start = start
+	NewKind = Components.NewKind,
+	GetKind = Components.GetKind,
+	GetAllComponents = Components.GetAllComponents,
+
+	Event = require(script.Event),
+	Start = require(script.start)
 }
