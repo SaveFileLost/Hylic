@@ -122,7 +122,7 @@ local function newKind<T, K, V...>(name: string)
 	
 	function kind:Destroy()
 		if self.IsDestroyed then return end
-		self.IsDestroyed = false
+		self.IsDestroyed = true
 
 		self:onDestroy()
 		
